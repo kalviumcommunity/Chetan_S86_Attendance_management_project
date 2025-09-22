@@ -2,15 +2,21 @@ package com.school;
 
 public class Main {
     public static void main(String[] args) {
+        // Auto-ID generation for Students
         Student[] students = {
-            new Student("Lokesh", 101),
-            new Student("Bhavdeep", 102),
-            new Student("Eswar", 103)
+            new Student("Alice"),
+            new Student("Bob"),
+            new Student("Charlie"),
+            new Student("David"),
+            new Student("Eva")
         };
 
+        // Auto-ID generation for Courses
         Course[] courses = {
-            new Course("DBMS", "MTH101"),
-            new Course("OOPS", "PHY101")
+            new Course("Mathematics"),
+            new Course("Physics"),
+            new Course("Chemistry"),
+            new Course("Biology")
         };
 
         System.out.println("Student Details:");
