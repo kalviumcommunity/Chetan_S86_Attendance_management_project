@@ -1,5 +1,4 @@
-1,Alice,Grade 10
-2,Bob,Grade 11
-3,Charlie,Grade 12
-4,David,Grade 10
-5,Eva,Grade 11
+1,Chetan,10th Grade
+2,Satya,11th Grade
+3,Ravi,12th Grade
+4,Anjali,9th Grade
