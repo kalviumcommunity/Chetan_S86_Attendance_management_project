@@ -1,3 +1,4 @@
-101,DBMS
-102,OOPS
-103,Computer Networks
+101,Mathematics
+102,Physics
+103,Chemistry
+104,Biology

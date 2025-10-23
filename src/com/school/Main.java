@@ -4,92 +4,99 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    
-    // Method to demonstrate polymorphism
     public static void displaySchoolDirectory(List<Person> people) {
-        System.out.println("\n=== School Directory (Polymorphic Display) ===");
         for (Person person : people) {
-            person.displayDetails(); // Polymorphic call - actual method depends on runtime type
+            person.displayDetails();
+            System.out.println();
         }
     }
 
     public static void main(String[] args) {
-        System.out.println("Welcome to the Attendance Management System!");
+        // Create and populate ArrayLists
+        ArrayList<Student> students = new ArrayList<>();
+        Student s1 = new Student("Alice", "Grade 10");
+        Student s2 = new Student("Bob", "Grade 11");
+        Student s3 = new Student("Charlie", "Grade 12");
+        Student s4 = new Student("David", "Grade 10");
+        Student s5 = new Student("Eva", "Grade 11");
+        students.add(s1);
+        students.add(s2);
+        students.add(s3);
+        students.add(s4);
+        students.add(s5);
 
-        // Use ArrayLists now
-        List<Student> students = new ArrayList<>();
-        students.add(new Student("Chetan", "10th Grade"));
-        students.add(new Student("Satya", "11th Grade"));
-        students.add(new Student("Ravi", "12th Grade"));
-        students.add(new Student("Anjali", "9th Grade"));
+        ArrayList<Course> courses = new ArrayList<>();
+        Course c1 = new Course("Mathematics");
+        Course c2 = new Course("Physics");
+        Course c3 = new Course("Chemistry");
+        Course c4 = new Course("Biology");
+        courses.add(c1);
+        courses.add(c2);
+        courses.add(c3);
+        courses.add(c4);
 
-        List<Teacher> teachers = new ArrayList<>();
-        teachers.add(new Teacher("Mr. Sharma", "DBMS"));
-        teachers.add(new Teacher("Ms. Priya", "OOPS"));
+    // We'll use AttendanceService to manage attendance records
 
-        List<Staff> staffMembers = new ArrayList<>();
-        staffMembers.add(new Staff("Ramesh", "Lab Assistant"));
-        staffMembers.add(new Staff("Suresh", "Clerk"));
+        // Teachers and Staff
+        Teacher tA = new Teacher("Mr. Smith", "Mathematics");
+        Teacher tB = new Teacher("Ms. Johnson", "Physics");
+        Staff stA = new Staff("Mrs. Brown", "Administrator");
+        Staff stB = new Staff("Mr. Green", "Janitor");
 
-        List<Course> courses = new ArrayList<>();
-        courses.add(new Course("DBMS"));
-        courses.add(new Course("OOPS"));
-        courses.add(new Course("Computer Networks"));
+        // Build a school directory list of Person
+        ArrayList<Person> schoolPeople = new ArrayList<>();
+        // Add students
+        schoolPeople.add(s1);
+        schoolPeople.add(s2);
+        schoolPeople.add(s3);
+        schoolPeople.add(s4);
+        schoolPeople.add(s5);
+        // Add teachers
+        schoolPeople.add(tA);
+        schoolPeople.add(tB);
+        // Add staff
+        schoolPeople.add(stA);
+        schoolPeople.add(stB);
 
-        System.out.println("\n--- Student List ---");
-        for (Student s : students) {
-            s.displayDetails();
-        }
+        System.out.println("School Directory:\n");
+        displaySchoolDirectory(schoolPeople);
 
-        System.out.println("\n--- Teacher List ---");
-        for (Teacher t : teachers) {
-            t.displayDetails();
-        }
-
-        System.out.println("\n--- Staff List ---");
-        for (Staff st : staffMembers) {
-            st.displayDetails();
-        }
-
-        System.out.println("\n--- Course List ---");
+        System.out.println("Course Details:");
         for (Course c : courses) {
             c.display();
         }
 
-        // Create ArrayList of Person objects for polymorphism demonstration
-        List<Person> schoolPeople = new ArrayList<>();
-        schoolPeople.addAll(students);    // Add all students
-        schoolPeople.addAll(teachers);    // Add all teachers  
-        schoolPeople.addAll(staffMembers); // Add all staff members
-        
-        // Demonstrate polymorphism
-        displaySchoolDirectory(schoolPeople);
-
-        // Attendance Recording with updated constructor
-        System.out.println("\n--- Attendance Log ---");
-        List<AttendanceRecord> attendanceLog = new ArrayList<>();
-        attendanceLog.add(new AttendanceRecord(students.get(0), courses.get(0), "Present"));
-        attendanceLog.add(new AttendanceRecord(students.get(1), courses.get(1), "Absent"));
-        attendanceLog.add(new AttendanceRecord(students.get(2), courses.get(2), "present"));
-        attendanceLog.add(new AttendanceRecord(students.get(3), courses.get(1), "Late"));
-
-        for (AttendanceRecord record : attendanceLog) {
-            record.displayRecord();
-        }
-
-        // Save to files - Filter students from schoolPeople for file storage
+        // Initialize storage and attendance service
         FileStorageService storage = new FileStorageService();
-        
-        // Filter only Student instances from schoolPeople list for file storage
-        List<Student> studentsForStorage = new ArrayList<>();
-        for (Person person : schoolPeople) {
-            if (person instanceof Student) {
-                studentsForStorage.add((Student) person);
+        AttendanceService attendanceService = new AttendanceService(storage);
+
+        // Mark attendance using object-based method
+        attendanceService.markAttendance(s1, c1, "Present");
+        attendanceService.markAttendance(s2, c2, "Absent");
+        attendanceService.markAttendance(s3, c3, "Late"); // invalid status -> 'Invalid'
+        attendanceService.markAttendance(s4, c1, "Present");
+
+        System.out.println("\nAll Attendance Records (via attendanceService):");
+        attendanceService.displayAttendanceLog();
+
+        System.out.println("\nAttendance Records for Student: " + s1.getName());
+        attendanceService.displayAttendanceLog(s1);
+
+        System.out.println("\nAttendance Records for Course: " + c1.getCourseName());
+        attendanceService.displayAttendanceLog(c1);
+
+        // If saving students from a mixed Person list, filter for Student instances
+        List<Student> studentsToSave = new ArrayList<>();
+        for (Person p : schoolPeople) {
+            if (p instanceof Student) {
+                studentsToSave.add((Student) p);
             }
         }
-        
-        storage.saveData(studentsForStorage, "students.txt");
+
+        storage.saveData(studentsToSave, "students.txt");
         storage.saveData(courses, "courses.txt");
-        storage.saveData(attendanceLog, "attendance_log.txt");
+
+        // Also save attendance via the service (this writes attendance_log.txt)
+        attendanceService.saveAttendanceData();
     }
 }
