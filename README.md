@@ -93,3 +93,68 @@ To run this project:
 2. Compile: `javac src/com/school/*.java`
 3. Run: `java -cp src com.school.Main`
 4. Check `attendance_log.txt` for saved records.
+
+## Part 9: RegistrationService and Dependency Injection
+
+### Overview
+In Part 9, we introduced a centralized `RegistrationService` to manage all entity registrations (students, teachers, staff, and courses) and refactored the application to use dependency injection patterns.
+
+### Key Changes
+
+#### 1. Teacher and Staff Classes
+- Both `Teacher.java` and `Staff.java` now implement the `Storable` interface
+- Added `toDataString()` method to serialize their data in CSV format (id, name, specific attribute)
+- This enables saving teacher and staff information to files
+
+#### 2. RegistrationService (New Class)
+A central service that manages all entity registrations and provides:
+- **Registration methods:**
+  - `registerStudent(String name, String gradeLevel)`
+  - `registerTeacher(String name, String subjectTaught)`
+  - `registerStaff(String name, String role)`
+  - `createCourse(String courseName)`
+- **Getter methods:**
+  - `getStudents()`, `getTeachers()`, `getStaffMembers()`, `getCourses()`
+- **Lookup methods:**
+  - `findStudentById(int id)` - finds a student by their ID
+  - `findCourseById(int id)` - finds a course by its ID
+- **Polymorphic method:**
+  - `getAllPeople()` - returns a unified `List<Person>` containing all students, teachers, and staff
+- **Persistence method:**
+  - `saveAllRegistrations()` - saves all managed entities to their respective files (students.txt, teachers.txt, staff.txt, courses.txt)
+
+#### 3. AttendanceService Refactoring
+- Added `RegistrationService` as a dependency (constructor injection)
+- Updated `markAttendance(int studentId, int courseId, String status)` to use `registrationService` for student and course lookups
+- Removed private helper methods (`findStudentById`, `findCourseById`) as lookups are now delegated to `RegistrationService`
+- Simplified the attendance marking process by centralizing entity management
+
+#### 4. Main.java Refactoring
+- Instantiated services in proper dependency order:
+  1. `FileStorageService` (no dependencies)
+  2. `RegistrationService` (depends on FileStorageService)
+  3. `AttendanceService` (depends on both FileStorageService and RegistrationService)
+- Replaced direct object creation with registration service methods
+- Updated `displaySchoolDirectory()` to accept `RegistrationService` and use `getAllPeople()`
+- Simplified attendance marking by using the ID-based method that leverages `RegistrationService`
+- Consolidated data persistence with `registrationService.saveAllRegistrations()` and `attendanceService.saveAttendanceData()`
+
+### Generated Files
+Running the application now generates five data files:
+- `students.txt` - Contains student records (id, name, gradeLevel)
+- `teachers.txt` - Contains teacher records (id, name, subjectTaught)
+- `staff.txt` - Contains staff records (id, name, role)
+- `courses.txt` - Contains course records (courseId, courseName)
+- `attendance_log.txt` - Contains attendance records
+
+### Design Benefits
+- **Separation of Concerns:** Each service has a clear, single responsibility
+- **Dependency Injection:** Services receive their dependencies through constructors, making the code more testable and maintainable
+- **Centralized Management:** All entity registration and lookup logic is centralized in `RegistrationService`
+- **Reduced Coupling:** Classes depend on abstractions rather than concrete implementations
+
+### How to Run
+1. Navigate to the project root directory.
+2. Compile: `javac --release 17 src/com/school/*.java` (or `javac src/com/school/*.java` if using Java 17 runtime)
+3. Run: `java -cp src com.school.Main`
+4. Verify the generated files: `students.txt`, `teachers.txt`, `staff.txt`, `courses.txt`, and `attendance_log.txt`
