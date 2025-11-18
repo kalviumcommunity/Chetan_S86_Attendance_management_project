@@ -33,30 +33,84 @@ public class Main {
         registrationService.registerStaff("Mr. Green", "Janitor");
 
         // Create courses using RegistrationService
-        registrationService.createCourse("Mathematics");
-        registrationService.createCourse("Physics");
-        registrationService.createCourse("Chemistry");
-        registrationService.createCourse("Biology");
+        registrationService.createCourse("Mathematics", 3);
+        registrationService.createCourse("Physics", 2);
+        registrationService.createCourse("Chemistry", 4);
+        registrationService.createCourse("Biology", 2);
 
         // Display school directory
         System.out.println("School Directory:\n");
         displaySchoolDirectory(registrationService);
 
         // Display course details
-        System.out.println("Course Details:");
+        System.out.println("\nCourse Details:");
         for (Course c : registrationService.getCourses()) {
             c.display();
         }
 
-        // Mark attendance using IDs (which will use registrationService internally)
+        // Enroll students in courses
+        System.out.println("\n=== Enrolling Students in Courses ===");
         List<Student> students = registrationService.getStudents();
         List<Course> courses = registrationService.getCourses();
         
+        if (students.size() >= 5 && courses.size() >= 4) {
+            // Enroll students in Mathematics (capacity: 3)
+            registrationService.enrollStudentInCourse(students.get(0), courses.get(0)); // Alice -> Mathematics
+            registrationService.enrollStudentInCourse(students.get(1), courses.get(0)); // Bob -> Mathematics
+            registrationService.enrollStudentInCourse(students.get(2), courses.get(0)); // Charlie -> Mathematics
+            
+            // Try to enroll one more student in Mathematics (should fail - exceeds capacity)
+            registrationService.enrollStudentInCourse(students.get(3), courses.get(0)); // David -> Mathematics (FAIL)
+            
+            // Enroll students in Physics (capacity: 2)
+            registrationService.enrollStudentInCourse(students.get(1), courses.get(1)); // Bob -> Physics
+            registrationService.enrollStudentInCourse(students.get(4), courses.get(1)); // Eva -> Physics
+            
+            // Try to enroll one more student in Physics (should fail - exceeds capacity)
+            registrationService.enrollStudentInCourse(students.get(0), courses.get(1)); // Alice -> Physics (FAIL)
+            
+            // Enroll students in Chemistry (capacity: 4)
+            registrationService.enrollStudentInCourse(students.get(2), courses.get(2)); // Charlie -> Chemistry
+            registrationService.enrollStudentInCourse(students.get(3), courses.get(2)); // David -> Chemistry
+            
+            // Enroll student in Biology (capacity: 2)
+            registrationService.enrollStudentInCourse(students.get(4), courses.get(3)); // Eva -> Biology
+        }
+
+        // Display updated course details with enrollment information
+        System.out.println("\n=== Updated Course Details (After Enrollment) ===");
+        for (Course c : courses) {
+            c.display();
+            System.out.println();
+        }
+
+        // Mark attendance using IDs (which will use registrationService internally)
+        System.out.println("=== Marking Attendance ===");
+        // Mark attendance using IDs (which will use registrationService internally)
+        System.out.println("=== Marking Attendance ===");
+        
         if (students.size() >= 4 && courses.size() >= 3) {
-            attendanceService.markAttendance(students.get(0).getId(), courses.get(0).getCourseId(), "Present");
-            attendanceService.markAttendance(students.get(1).getId(), courses.get(1).getCourseId(), "Absent");
-            attendanceService.markAttendance(students.get(2).getId(), courses.get(2).getCourseId(), "Late");
-            attendanceService.markAttendance(students.get(3).getId(), courses.get(0).getCourseId(), "Present");
+            // Optional: Check if student is enrolled before marking attendance
+            Course mathCourse = courses.get(0);
+            if (mathCourse.getEnrolledStudents().contains(students.get(0))) {
+                attendanceService.markAttendance(students.get(0).getId(), mathCourse.getCourseId(), "Present");
+            }
+            if (mathCourse.getEnrolledStudents().contains(students.get(1))) {
+                attendanceService.markAttendance(students.get(1).getId(), mathCourse.getCourseId(), "Present");
+            }
+            
+            Course physicsCourse = courses.get(1);
+            if (physicsCourse.getEnrolledStudents().contains(students.get(1))) {
+                attendanceService.markAttendance(students.get(1).getId(), physicsCourse.getCourseId(), "Absent");
+            }
+            
+            Course chemistryCourse = courses.get(2);
+            if (chemistryCourse.getEnrolledStudents().contains(students.get(2))) {
+                attendanceService.markAttendance(students.get(2).getId(), chemistryCourse.getCourseId(), "Late");
+            }
+            if (chemistryCourse.getEnrolledStudents().contains(students.get(3))) {
+                attendanceService.markAttendance(students.get(3).getId(), chemistryCourse.getCourseId(), "Present");
+            }
         }
 
         System.out.println("\nAll Attendance Records (via attendanceService):");

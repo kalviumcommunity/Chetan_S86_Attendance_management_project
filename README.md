@@ -158,3 +158,148 @@ Running the application now generates five data files:
 2. Compile: `javac --release 17 src/com/school/*.java` (or `javac src/com/school/*.java` if using Java 17 runtime)
 3. Run: `java -cp src com.school.Main`
 4. Verify the generated files: `students.txt`, `teachers.txt`, `staff.txt`, `courses.txt`, and `attendance_log.txt`
+
+## Part 10: Capacity Management & SOLID Principles Reflection
+
+### Overview
+In Part 10, we added course capacity management functionality and implemented enrollment validation. This final part demonstrates how SOLID principles were applied throughout the project.
+
+### Key Changes
+
+#### 1. Course Class Enhancements
+- **Added Fields:**
+  - `private int capacity` - Maximum number of students allowed in the course
+  - `private List<Student> enrolledStudents` - List of students enrolled in the course (initialized in constructor)
+- **Updated Constructor:**
+  - `Course(String courseName, int capacity)` - Now accepts capacity as a parameter
+- **New Getters:**
+  - `getCapacity()` - Returns the course capacity
+  - `getEnrolledStudents()` - Returns the list of enrolled students
+  - `getNumberOfEnrolledStudents()` - Returns the count of enrolled students
+- **New Method:**
+  - `addStudent(Student student)` - Enrolls a student if capacity allows, returns `true` on success, `false` if full
+- **Updated Methods:**
+  - `display()` - Now shows capacity and current enrollment count
+  - `toDataString()` - Includes capacity for file persistence (format: `courseId,courseName,capacity`)
+
+#### 2. RegistrationService Updates
+- **Updated Method:**
+  - `createCourse(String courseName, int capacity)` - Now requires capacity when creating courses
+- **New Method:**
+  - `enrollStudentInCourse(Student student, Course course)` - Handles student enrollment with validation
+    - Uses `course.addStudent(student)` to attempt enrollment
+    - Prints success message when student is enrolled
+    - Prints failure message when course is at capacity
+    - Returns boolean indicating success/failure
+
+#### 3. Main.java Demonstration
+- **Course Creation with Capacity:**
+  - Mathematics: capacity 3
+  - Physics: capacity 2
+  - Chemistry: capacity 4
+  - Biology: capacity 2
+- **Enrollment Demonstrations:**
+  - Successfully enrolls students within capacity limits
+  - Demonstrates enrollment failures when capacity is exceeded
+  - Shows two courses reaching capacity (Mathematics and Physics)
+- **Enhanced Display:**
+  - Shows updated course details after enrollments
+  - Displays capacity and enrollment count for each course
+- **Optional Attendance Validation:**
+  - Checks if students are enrolled before marking attendance
+  - Uses `course.getEnrolledStudents().contains(student)` for verification
+
+### SOLID Principles Reflection
+
+Throughout this 10-part project, we've applied SOLID principles to build a maintainable and extensible attendance management system:
+
+#### **S - Single Responsibility Principle (SRP)**
+Each class has a single, well-defined responsibility:
+- `Person`, `Student`, `Teacher`, `Staff` - Manage entity data and behavior
+- `Course` - Manages course information and enrollment
+- `AttendanceRecord` - Represents a single attendance entry
+- `FileStorageService` - Handles all file I/O operations
+- `RegistrationService` - Manages entity registration and lookups
+- `AttendanceService` - Handles attendance marking and querying
+
+#### **O - Open/Closed Principle (OCP)**
+The system is open for extension but closed for modification:
+- New person types (e.g., `Administrator`) can be added by extending `Person` without modifying existing code
+- The `Storable` interface allows new entity types to be persisted without changing `FileStorageService`
+- Course capacity feature was added without breaking existing functionality
+
+#### **L - Liskov Substitution Principle (LSP)**
+Derived classes can be substituted for their base classes:
+- `Student`, `Teacher`, and `Staff` can be used anywhere `Person` is expected
+- Polymorphic behavior demonstrated in `getAllPeople()` and `displaySchoolDirectory()`
+- All subclasses properly implement and extend base class behavior
+
+#### **I - Interface Segregation Principle (ISP)**
+Interfaces are specific and focused:
+- `Storable` interface has a single method (`toDataString()`) for serialization
+- Classes only implement interfaces they actually use
+- No class is forced to depend on methods it doesn't use
+
+#### **D - Dependency Inversion Principle (DIP)**
+High-level modules depend on abstractions, not concrete implementations:
+- Services depend on the `Storable` interface, not concrete entity classes
+- `AttendanceService` receives `RegistrationService` through constructor injection
+- Dependencies flow from concrete implementations to abstractions
+- Makes the system more testable and flexible
+
+### Future Enhancements
+While the current implementation is functional, additional SOLID-compliant improvements could include:
+- **Strategy Pattern** for different attendance validation rules
+- **Observer Pattern** to notify stakeholders when courses reach capacity
+- **Factory Pattern** for creating different types of courses
+- **Repository Pattern** for data access abstraction
+
+### Generated Files
+The application generates five data files:
+- `students.txt` - Student records (id, name, gradeLevel)
+- `teachers.txt` - Teacher records (id, name, subjectTaught)
+- `staff.txt` - Staff records (id, name, role)
+- `courses.txt` - **Course records including capacity** (courseId, courseName, capacity)
+- `attendance_log.txt` - Attendance records
+
+### How to Run
+1. Navigate to the project root directory.
+2. Compile: `javac src/com/school/*.java`
+3. Run: `java -cp src com.school.Main`
+4. Check `courses.txt` for the capacity field and other files for their respective data.
+
+### Expected Console Output
+The console will display:
+- School directory with all people
+- Initial course details with capacity
+- Enrollment attempts with success/failure messages
+- Updated course details showing enrollment counts
+- Attendance marking results
+- Attendance logs (all records, by student, by course)
+
+### Verification Steps
+1. **Capacity Limits:** Observe enrollment failures when courses reach capacity
+2. **Success/Failure Messages:** Check console output for enrollment status messages
+3. **File Persistence:** Verify `courses.txt` includes the capacity value for each course
+4. **Enrollment Tracking:** Confirm course details show accurate enrollment counts
+
+---
+
+## Project Completion Summary
+This 10-part project successfully built a console-based attendance management system that demonstrates core OOP concepts including:
+- Class design and object modeling
+- Inheritance and polymorphism
+- Interfaces and abstraction
+- Encapsulation and data validation
+- Service-oriented architecture
+- Dependency injection
+- File persistence
+- SOLID principles
+
+The system provides a solid foundation that could be extended with features like:
+- Database integration
+- GUI interface
+- Advanced reporting
+- Email notifications
+- Role-based access control
+- Course scheduling and prerequisites
